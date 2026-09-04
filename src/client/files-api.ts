@@ -147,17 +147,22 @@ export function classifyFile(name: string): FileKind {
   return { kind: 'other', ext }
 }
 
-/** Row glyph for an entry. */
-export function entryIcon(entry: FsEntry): string {
-  if (entry.kind === 'dir') return '📁'
-  const { kind } = classifyFile(entry.name)
-  if (kind === 'image') return '🖼️'
+/**
+ * Icon glyph id for one entry row (rendered as an SVG by icons.tsx; kept
+ * here as a pure string classifier so files-api stays framework-free).
+ */
+export type EntryGlyphId = 'dir' | 'image' | 'markdown' | 'config' | 'code' | 'text' | 'binary'
+
+/** Row glyph id for an entry. */
+export function entryGlyph(entry: FsEntry): EntryGlyphId {
+  if (entry.kind === 'dir') return 'dir'
+  const { kind, ext } = classifyFile(entry.name)
+  if (kind === 'image') return 'image'
   if (kind === 'text') {
-    const ext = classifyFile(entry.name).ext
-    if (['md', 'markdown'].includes(ext)) return '📝'
-    if (['json', 'yaml', 'yml', 'toml'].includes(ext)) return '🧾'
-    if (['go', 'ts', 'tsx', 'js', 'py', 'rs', 'java', 'c', 'cpp', 'sh'].includes(ext)) return '🧩'
-    return '📄'
+    if (['md', 'markdown'].includes(ext)) return 'markdown'
+    if (['json', 'yaml', 'yml', 'toml'].includes(ext)) return 'config'
+    if (['go', 'ts', 'tsx', 'js', 'py', 'rs', 'java', 'c', 'cpp', 'sh'].includes(ext)) return 'code'
+    return 'text'
   }
-  return '🧷'
+  return 'binary'
 }

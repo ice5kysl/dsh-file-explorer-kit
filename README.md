@@ -1,6 +1,6 @@
 # dsh-file-explorer
 
-> 🏠 GitHub：<https://github.com/ice5kysl/dsh-file-explorer> ｜ 📦 MIT License ｜ 目标 dsh：`@deepseek-ai/dsh` ≥ 0.1.1-rc.2
+> GitHub：<https://github.com/ice5kysl/dsh-file-explorer> ｜ MIT License ｜ 目标 dsh：`@deepseek-ai/dsh` ≥ 0.1.1-rc.2
 
 按官方规范编写的 **dsh（DeepSeek Harness）插件**（bundle 形态），解决一个痛点：
 

@@ -44,10 +44,10 @@ let failed = 0
 async function check(name, fn) {
   try {
     await fn()
-    console.log(`  ✅ ${name}`)
+    console.log(`  [ok] ${name}`)
   } catch (error) {
     failed += 1
-    console.log(`  ❌ ${name}: ${error.message}`)
+    console.log(`  [FAIL] ${name}: ${error.message}`)
   }
 }
 

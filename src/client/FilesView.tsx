@@ -28,7 +28,7 @@ import DOMPurify from 'dompurify'
 import {
   ApiError,
   classifyFile,
-  entryIcon,
+  entryGlyph,
   fetchHome,
   fetchList,
   fetchText,
@@ -41,6 +41,7 @@ import {
 } from './files-api.ts'
 import { browseMemoryGet, browseMemorySet } from './browse-memory.ts'
 import { canOpenPath, openPathExternal } from './actions.ts'
+import { Copy, EntryGlyph, Eye, FileText, Folder, Home, Lock, MessageSquare, RefreshCw, TriangleAlert } from './icons.tsx'
 
 /** Selector-shaped hooks the shell's standard kit passes to session views. */
 export interface FilesViewProps {
@@ -304,7 +305,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
       <div style={styles.header}>
         <div style={styles.lineRow}>
           <div style={styles.roots}>
-            <RootChip label="🏠 主目录" onClick={() => home && navigate(home)} disabled={!home} />
+            <RootChip icon={<Home size={12} />} label="主目录" onClick={() => home && navigate(home)} disabled={!home} />
             {quickRootChips(workspacesState, sessionsState, sessionId, navigate)}
           </div>
           <div style={styles.lineSpacer} />
@@ -317,7 +318,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
             {showHidden ? '隐藏点文件' : '显示隐藏'}
           </button>
           <button type="button" style={styles.toolButton} onClick={() => setRefreshTick((tick) => tick + 1)} title="刷新当前目录">
-            ⟳ 刷新
+            <RefreshCw size={12} /> 刷新
           </button>
         </div>
         <div style={styles.lineRow}>
@@ -415,7 +416,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
                   }}
                   title={entry.path}
                 >
-                  <span style={styles.rowIcon}>{entryIcon(entry)}</span>
+                  <span style={styles.rowIcon}><EntryGlyph glyph={entryGlyph(entry)} size={13} /></span>
                   <span style={styles.rowName}>{entry.name}</span>
                   <span style={styles.rowMeta}>
                     {entry.kind === 'dir' ? '目录' : formatSize(entry.size)}
@@ -431,7 +432,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
                         copyPath(entry)
                       }}
                     >
-                      ⧉
+                      <Copy size={12} />
                     </button>
                   )}
                 </div>
@@ -448,7 +449,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
           {preview && (
             <div style={styles.previewHeader}>
               <span style={styles.previewName} title={preview.entry.path}>
-                {entryIcon(preview.entry)} {preview.entry.name}
+                <EntryGlyph glyph={entryGlyph(preview.entry)} size={13} /> {preview.entry.name}
               </span>
               <span style={styles.previewMeta}>{formatSize(preview.entry.size)}</span>
               {preview.kind === 'markdown' && (
@@ -488,7 +489,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
           <div style={styles.previewBody}>
             {!selected && (
               <div style={styles.previewEmpty}>
-                <div style={styles.previewEmptyIcon}>👀</div>
+                <div style={styles.previewEmptyIcon}><Eye size={32} strokeWidth={1.4} /></div>
                 <div>选择左侧文件预览内容</div>
                 <div style={styles.previewEmptyHint}>当前目录：{currentPath}</div>
               </div>
@@ -508,7 +509,9 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
             {preview?.kind === 'text' && <TextView text={preview.text ?? ''} truncated={Boolean(preview.truncated)} />}
             {(preview?.kind === 'binary' || preview?.kind === 'empty') && (
               <div style={styles.previewEmpty}>
-                <div style={styles.previewEmptyIcon}>{preview.kind === 'empty' ? '📄' : '🔒'}</div>
+                <div style={styles.previewEmptyIcon}>
+                  {preview.kind === 'empty' ? <FileText size={30} strokeWidth={1.4} /> : <Lock size={30} strokeWidth={1.4} />}
+                </div>
                 <div>{preview.kind === 'empty' ? '空文件' : '二进制文件，无法文本预览'}</div>
                 <div style={styles.previewEmptyHint}>
                   可用「在 Finder 中打开」查看，或复制路径后在会话里让模型读取。
@@ -517,7 +520,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
             )}
             {preview?.kind === 'error' && (
               <div style={styles.previewEmpty}>
-                <div style={styles.previewEmptyIcon}>⚠️</div>
+                <div style={styles.previewEmptyIcon}><TriangleAlert size={30} strokeWidth={1.4} /></div>
                 <div>{preview.error ?? '预览失败'}</div>
               </div>
             )}
@@ -549,11 +552,12 @@ function renderMarkdownSafe(text: string): string | undefined {
 }
 
 /** One quick-root chip in the header. */
-function RootChip(props: { label: string; onClick: () => void; disabled?: boolean }): JSX.Element | null {
-  const { label, onClick, disabled } = props
+function RootChip(props: { icon?: JSX.Element; label: string; onClick: () => void; disabled?: boolean }): JSX.Element | null {
+  const { icon, label, onClick, disabled } = props
   if (disabled) return null
   return (
     <button type="button" style={styles.rootChip} onClick={onClick} title={label}>
+      {icon && <span style={styles.rootChipIcon}>{icon}</span>}
       {label}
     </button>
   )
@@ -562,7 +566,7 @@ function RootChip(props: { label: string; onClick: () => void; disabled?: boolea
 /**
  * Quick-root chips for the workspace-root jump row: registered workspaces
  * (deduped against the current session workspace, capped for width) plus the
- * session workspace itself when it is not one of them. 「🏠 主目录」is rendered
+ * session workspace itself when it is not one of them. 「主目录」is rendered
  * separately before these.
  */
 function quickRootChips(
@@ -583,7 +587,8 @@ function quickRootChips(
     chips.push(
       <RootChip
         key={String(item.workspaceId)}
-        label={`📂 ${item.title ?? '?'}`}
+        icon={<Folder size={12} />}
+        label={item.title ?? '?'}
         onClick={() => navigate(item.path as string)}
       />,
     )
@@ -591,7 +596,12 @@ function quickRootChips(
   if (sessionCwd && !covered.has(sessionCwd)) {
     const title = (sid ? sessionsState?.byId?.[sid]?.displayTitle : undefined) ?? '当前会话'
     chips.push(
-      <RootChip key={`session-${sid ?? ''}`} label={`💬 ${String(title).slice(0, 30)}`} onClick={() => navigate(sessionCwd)} />,
+      <RootChip
+        key={`session-${sid ?? ''}`}
+        icon={<MessageSquare size={12} />}
+        label={String(title).slice(0, 30)}
+        onClick={() => navigate(sessionCwd)}
+      />,
     )
   }
   return chips
@@ -604,10 +614,10 @@ function TextView(props: { text: string; truncated: boolean }): JSX.Element {
   return (
     <div style={styles.textWrap}>
       {props.truncated && (
-        <div style={styles.textTruncatedNote}>⚠️ 文件较大，仅预览前 {TEXT_PREVIEW_BYTES / 1024} KB</div>
+        <div style={styles.textTruncatedNote}><TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />文件较大，仅预览前 {TEXT_PREVIEW_BYTES / 1024} KB</div>
       )}
       {lines.length > MAX_TEXT_LINES && (
-        <div style={styles.textTruncatedNote}>⚠️ 内容过长，仅显示前 {MAX_TEXT_LINES} 行</div>
+        <div style={styles.textTruncatedNote}><TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />内容过长，仅显示前 {MAX_TEXT_LINES} 行</div>
       )}
       <pre style={styles.textPre}>
         {shown.map((line, index) => (
@@ -626,7 +636,7 @@ function MarkdownPreview(props: { html: string; truncated: boolean }): JSX.Eleme
   return (
     <div style={styles.mdWrap}>
       {props.truncated && (
-        <div style={styles.textTruncatedNote}>⚠️ 文件较大，仅渲染前 {TEXT_PREVIEW_BYTES / 1024} KB</div>
+        <div style={styles.textTruncatedNote}><TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />文件较大，仅渲染前 {TEXT_PREVIEW_BYTES / 1024} KB</div>
       )}
       <style>{MD_CSS}</style>
       <div className="dfe-md" dangerouslySetInnerHTML={{ __html: props.html }} />
@@ -717,6 +727,9 @@ const styles: Record<string, CSSProperties> = {
     scrollbarWidth: 'thin',
   },
   rootChip: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 5,
     fontSize: 12,
     lineHeight: '22px',
     height: 22,
@@ -732,6 +745,11 @@ const styles: Record<string, CSSProperties> = {
     maxWidth: 190,
     flexShrink: 0,
   },
+  rootChipIcon: {
+    display: 'inline-flex',
+    flexShrink: 0,
+    color: '#8a93a6',
+  },
   jumpInput: {
     width: 170,
     boxSizing: 'border-box',
@@ -746,6 +764,9 @@ const styles: Record<string, CSSProperties> = {
     flexShrink: 0,
   },
   toolButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 5,
     flexShrink: 0,
     fontSize: 12,
     lineHeight: '22px',
@@ -873,6 +894,8 @@ const styles: Record<string, CSSProperties> = {
     textAlign: 'right',
   },
   miniAction: {
+    display: 'inline-flex',
+    alignItems: 'center',
     flexShrink: 0,
     border: 'none',
     background: 'transparent',
@@ -974,7 +997,9 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: 1.9,
   },
   previewEmptyIcon: {
-    fontSize: 34,
+    display: 'flex',
+    justifyContent: 'center',
+    color: '#c3c9d6',
     marginBottom: 6,
   },
   previewEmptyHint: {
@@ -999,6 +1024,9 @@ const styles: Record<string, CSSProperties> = {
     overflow: 'auto',
   },
   textTruncatedNote: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
     position: 'sticky',
     top: 0,
     zIndex: 1,
@@ -1008,6 +1036,7 @@ const styles: Record<string, CSSProperties> = {
     borderBottom: '1px solid #f0e2b6',
     padding: '4px 12px',
   },
+  warnGlyph: { flexShrink: 0 },
   textPre: {
     margin: 0,
     padding: '8px 0 20px',
