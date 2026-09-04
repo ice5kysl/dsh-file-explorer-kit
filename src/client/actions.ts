@@ -9,6 +9,8 @@
  * @module dsh-file-explorer/actions
  */
 
+import { L } from './locale.ts'
+
 let openPathImpl: ((path: string) => Promise<void>) | undefined
 
 /** Install the runtime's openPath action (called once from apply()). */
@@ -26,6 +28,6 @@ export function canOpenPath(): boolean {
  * xdg-open hand-off). Rejects when the runtime lacks the capability.
  */
 export function openPathExternal(path: string): Promise<void> {
-  if (!openPathImpl) return Promise.reject(new Error('当前部署无法打开系统文件管理器'))
+  if (!openPathImpl) return Promise.reject(new Error(L('当前部署无法打开系统文件管理器', 'This deployment cannot open the system file manager')))
   return openPathImpl(path)
 }

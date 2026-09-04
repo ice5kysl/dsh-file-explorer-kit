@@ -6,13 +6,13 @@
  * the shipped chat and trajectory entries. While the tab is active the
  * session body shows a Finder-style browser:
  *
- * - root jump chips (this session's workspace / registered workspaces /
- *   home) + breadcrumbs + absolute-path jump box,
+ * - breadcrumbs + absolute-path jump box + a 中/EN language toggle,
  * - a current-folder listing (dirs first, size + mtime), hidden-file toggle,
  *   auto-refresh while the tab is focused (the agent keeps writing files),
  * - a preview pane: images inline, markdown rendered by default with a
- *   预览/Raw 切换 (sanitized via DOMPurify), other text with line numbers
- *   (capped), PDF inline, binary files offer copy-path / open-in-Finder.
+ *   Preview/Raw toggle (sanitized via DOMPurify), other text with line
+ *   numbers (capped), PDF inline, binary files offer copy-path / open in
+ *   the system file manager.
  *
  * The view unmounts when the user switches tab or session; the last browsed
  * directory per session is remembered in memory (see browse-memory.ts) so a
@@ -41,7 +41,8 @@ import {
 } from './files-api.ts'
 import { browseMemoryGet, browseMemorySet } from './browse-memory.ts'
 import { canOpenPath, openPathExternal } from './actions.ts'
-import { Copy, EntryGlyph, Eye, FileText, Folder, Home, Lock, MessageSquare, RefreshCw, TriangleAlert } from './icons.tsx'
+import { getLocale, L, setLocalePreference } from './locale.ts'
+import { Copy, EntryGlyph, Eye, FileText, Languages, Lock, RefreshCw, TriangleAlert } from './icons.tsx'
 
 /** Selector-shaped hooks the shell's standard kit passes to session views. */
 export interface FilesViewProps {
@@ -96,6 +97,8 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
   const [preview, setPreview] = useState<PreviewState | undefined>(undefined)
   /** 预览/Raw 切换（仅 markdown 文件；默认渲染预览）。 */
   const [mdView, setMdView] = useState<MarkdownViewMode>('preview')
+  /** 顶栏中/EN 切换：写入偏好后 bump 一次，让整棵视图按新语言重渲染。 */
+  const [, setLocaleTick] = useState(0)
 
   // Standard-kit hooks may be absent at first render — treat as optional.
   const sessionsState = typeof useSessions === 'function' ? useSessions((state: any) => state) : undefined
@@ -146,7 +149,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
       .catch((error: unknown) => {
         if (cancelled) return
         setLoadState('error')
-        setLoadError(`无法确定起始目录：${messageOf(error)}`)
+        setLoadError(L('无法确定起始目录：', 'Could not determine a start directory: ') + messageOf(error))
       })
     return () => {
       cancelled = true
@@ -295,7 +298,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
     if (!target) return
     const looksAbsolute = target.startsWith('/') || /^[A-Za-z]:[\\/]/.test(target)
     if (!looksAbsolute) {
-      setActionNote('请输入绝对路径（如 /Users/… 或 C:\\…）')
+      setActionNote(L('请输入绝对路径（如 /Users/… 或 C:\\…）', 'Enter an absolute path (e.g. /Users/… or C:\\…)'))
       return
     }
     navigate(target)
@@ -303,42 +306,23 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
 
   function copyPath(entry: FsEntry): void {
     navigator.clipboard?.writeText(entry.path)
-      .then(() => setActionNote(`已复制：${entry.path}`))
-      .catch(() => setActionNote('复制失败'))
+      .then(() => setActionNote(L('已复制：{path}', 'Copied: {path}', { path: entry.path })))
+      .catch(() => setActionNote(L('复制失败', 'Copy failed')))
   }
 
   function openInFinder(entry: FsEntry): void {
-    setActionNote('正在打开…')
+    setActionNote(L('正在打开…', 'Opening…'))
     openPathExternal(entry.path)
-      .then(() => setActionNote('已在系统文件管理器中打开'))
+      .then(() => setActionNote(L('已在系统文件管理器中打开', 'Opened in the system file manager')))
       .catch((error: unknown) => setActionNote(messageOf(error)))
   }
 
   const crumbs = listing?.crumbs ?? []
-  const home = listing?.home
 
   return (
     <div style={styles.root}>
-      {/* ── header: 快速跳转行 + 面包屑/工具行（固定行高，内容只横向滚动） ── */}
+      {/* ── header: 面包屑 + 工具（隐藏切换 / 刷新 / 中EN / 跳转），单行 ── */}
       <div style={styles.header}>
-        <div style={styles.lineRow}>
-          <div style={styles.roots}>
-            <RootChip icon={<Home size={12} />} label="主目录" onClick={() => home && navigate(home)} disabled={!home} />
-            {quickRootChips(workspacesState, sessionsState, sessionId, navigate)}
-          </div>
-          <div style={styles.lineSpacer} />
-          <button
-            type="button"
-            style={{ ...styles.toolButton, ...(showHidden ? styles.toolButtonActive : {}) }}
-            onClick={() => setShowHidden((value) => !value)}
-            title="显示/隐藏点开头文件（.git、node_modules 等）"
-          >
-            {showHidden ? '隐藏点文件' : '显示隐藏'}
-          </button>
-          <button type="button" style={styles.toolButton} onClick={() => setRefreshTick((tick) => tick + 1)} title="刷新当前目录">
-            <RefreshCw size={12} /> 刷新
-          </button>
-        </div>
         <div style={styles.lineRow}>
           <div style={styles.crumbs}>
             {crumbs.length === 0 && <span style={styles.crumbPath}>{currentPath || '…'}</span>}
@@ -357,18 +341,47 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
             ))}
           </div>
           <div style={styles.lineSpacer} />
+          <button
+            type="button"
+            style={{ ...styles.toolButton, ...(showHidden ? styles.toolButtonActive : {}) }}
+            onClick={() => setShowHidden((value) => !value)}
+            title={L('显示/隐藏点开头文件（.git、node_modules 等）', 'Show/hide dotfiles (.git, node_modules, …)')}
+          >
+            {showHidden ? L('隐藏点文件', 'Hide dotfiles') : L('显示隐藏', 'Show hidden')}
+          </button>
+          <button
+            type="button"
+            style={styles.toolButton}
+            onClick={() => setRefreshTick((tick) => tick + 1)}
+            title={L('刷新当前目录', 'Refresh this directory')}
+          >
+            <RefreshCw size={12} /> {L('刷新', 'Refresh')}
+          </button>
+          <button
+            type="button"
+            style={styles.toolButton}
+            onClick={() => {
+              setLocalePreference(getLocale() === 'zh' ? 'en' : 'zh')
+              setLocaleTick((tick) => tick + 1)
+            }}
+            title={L('切换到 {lang}', 'Switch to {lang}', {
+              lang: getLocale() === 'zh' ? 'English' : '中文',
+            })}
+          >
+            <Languages size={12} /> {getLocale() === 'zh' ? 'EN' : '中'}
+          </button>
           <input
             style={styles.jumpInput}
-            placeholder="绝对路径…"
+            placeholder={L('绝对路径…', 'Absolute path…')}
             value={jumpInput}
             onChange={(event) => setJumpInput(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter') handleJump()
             }}
-            aria-label="跳转路径"
+            aria-label={L('跳转路径', 'Jump to path')}
           />
-          <button type="button" style={styles.toolButton} onClick={handleJump} title="跳转到输入的绝对路径">
-            跳转
+          <button type="button" style={styles.toolButton} onClick={handleJump} title={L('跳转到输入的绝对路径', 'Jump to the entered absolute path')}>
+            {L('跳转', 'Go')}
           </button>
         </div>
       </div>
@@ -379,7 +392,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
           ref={listElRef}
           style={styles.listPane}
           role="listbox"
-          aria-label="目录与文件"
+          aria-label={L('目录与文件', 'Files and folders')}
           tabIndex={0}
           onKeyDown={(event) => {
             if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -401,15 +414,23 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
           }}
         >
           <div style={styles.listStatus}>
-            {loadState === 'loading' && <span style={styles.statusText}>加载中…</span>}
+            {loadState === 'loading' && <span style={styles.statusText}>{L('加载中…', 'Loading…')}</span>}
             {loadState === 'error' && (
-              <span style={{ ...styles.statusText, color: '#c0392b' }}>{loadError}（可点 ⟳ 重试）</span>
+              <span style={{ ...styles.statusText, color: '#c0392b' }}>
+                {L('{message}（点刷新重试）', '{message} (refresh to retry)', { message: loadError })}
+              </span>
             )}
             {loadState === 'idle' && visible.length === 0 && (
-              <span style={styles.statusText}>{listing?.truncated ? '目录过大，仅显示前 2000 项' : '（空目录）'}</span>
+              <span style={styles.statusText}>
+                {listing?.truncated
+                  ? L('目录过大，仅显示前 2000 项', 'Too many entries — showing the first 2000')
+                  : L('（空目录）', '(empty directory)')}
+              </span>
             )}
             {loadState === 'idle' && visible.length > 0 && listing?.truncated && (
-              <span style={styles.statusText}>共 {entries.length}+ 项（仅显示前 2000）</span>
+              <span style={styles.statusText}>
+                {L('共 {n}+ 项（仅显示前 2000）', '{n}+ items (showing the first 2000)', { n: entries.length })}
+              </span>
             )}
           </div>
           <div style={styles.listInner}>
@@ -436,14 +457,14 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
                   <span style={styles.rowIcon}><EntryGlyph glyph={entryGlyph(entry)} size={13} /></span>
                   <span style={styles.rowName}>{entry.name}</span>
                   <span style={styles.rowMeta}>
-                    {entry.kind === 'dir' ? '目录' : formatSize(entry.size)}
+                    {entry.kind === 'dir' ? L('目录', 'Folder') : formatSize(entry.size)}
                   </span>
                   <span style={styles.rowMeta2}>{formatMtime(entry.mtimeMs)}</span>
                   {entry.kind === 'file' && (
                     <button
                       type="button"
                       style={styles.miniAction}
-                      title="复制路径"
+                      title={L('复制路径', 'Copy path')}
                       onClick={(event) => {
                         event.stopPropagation()
                         copyPath(entry)
@@ -457,7 +478,9 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
             })}
           </div>
           <div style={styles.listFooter}>
-            <span style={styles.statusText}>↑↓ 选择 · ↵ 打开 · ⌫ 上级 · 切回「对话」tab 继续聊天</span>
+            <span style={styles.statusText}>
+              {L('↑↓ 选择 · ↵ 打开 · ⌫ 上级 · 切回「对话」标签继续聊天', '↑↓ select · ↵ open · ⌫ up · switch back to the Chat tab to keep chatting')}
+            </span>
           </div>
         </div>
 
@@ -470,20 +493,20 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
               </span>
               <span style={styles.previewMeta}>{formatSize(preview.entry.size)}</span>
               {preview.kind === 'markdown' && (
-                <span style={styles.segmented} role="group" aria-label="预览模式">
+                <span style={styles.segmented} role="group" aria-label={L('预览模式', 'Preview mode')}>
                   <button
                     type="button"
                     style={{ ...styles.segButton, ...(mdView === 'preview' ? styles.segButtonActive : {}) }}
                     onClick={() => setMdView('preview')}
-                    title="渲染后的 Markdown"
+                    title={L('渲染后的 Markdown', 'Rendered Markdown')}
                   >
-                    预览
+                    {L('预览', 'Preview')}
                   </button>
                   <button
                     type="button"
                     style={{ ...styles.segButton, ...(mdView === 'raw' ? styles.segButtonActive : {}) }}
                     onClick={() => setMdView('raw')}
-                    title="带行号的原始 Markdown 文本"
+                    title={L('带行号的原始 Markdown 文本', 'Raw Markdown with line numbers')}
                   >
                     Raw
                   </button>
@@ -492,12 +515,12 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
               <span style={styles.previewSpacer} />
               {preview.kind !== 'error' && (
                 <button type="button" style={styles.previewAction} onClick={() => copyPath(preview.entry)}>
-                  复制路径
+                  {L('复制路径', 'Copy path')}
                 </button>
               )}
               {preview.kind !== 'error' && canOpenPath() && (
                 <button type="button" style={styles.previewAction} onClick={() => openInFinder(preview.entry)}>
-                  在 Finder 中打开
+                  {L('在 Finder 中打开', 'Open in file manager')}
                 </button>
               )}
             </div>
@@ -507,8 +530,10 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
             {!selected && (
               <div style={styles.previewEmpty}>
                 <div style={styles.previewEmptyIcon}><Eye size={32} strokeWidth={1.4} /></div>
-                <div>选择左侧文件预览内容</div>
-                <div style={styles.previewEmptyHint}>当前目录：{currentPath}</div>
+                <div>{L('选择左侧文件预览内容', 'Select a file on the left to preview')}</div>
+                <div style={styles.previewEmptyHint}>
+                  {L('当前目录：{path}', 'Current directory: {path}', { path: currentPath })}
+                </div>
               </div>
             )}
             {preview?.kind === 'image' && preview.url && (
@@ -529,16 +554,19 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
                 <div style={styles.previewEmptyIcon}>
                   {preview.kind === 'empty' ? <FileText size={30} strokeWidth={1.4} /> : <Lock size={30} strokeWidth={1.4} />}
                 </div>
-                <div>{preview.kind === 'empty' ? '空文件' : '二进制文件，无法文本预览'}</div>
+                <div>{preview.kind === 'empty' ? L('空文件', 'Empty file') : L('二进制文件，无法文本预览', 'Binary file — no text preview')}</div>
                 <div style={styles.previewEmptyHint}>
-                  可用「在 Finder 中打开」查看，或复制路径后在会话里让模型读取。
+                  {L(
+                    '可用「在 Finder 中打开」查看，或复制路径后在会话里让模型读取。',
+                    'Open it in the file manager, or copy the path and ask the model in the chat.',
+                  )}
                 </div>
               </div>
             )}
             {preview?.kind === 'error' && (
               <div style={styles.previewEmpty}>
                 <div style={styles.previewEmptyIcon}><TriangleAlert size={30} strokeWidth={1.4} /></div>
-                <div>{preview.error ?? '预览失败'}</div>
+                <div>{preview.error ?? L('预览失败', 'Preview failed')}</div>
               </div>
             )}
           </div>
@@ -584,62 +612,6 @@ function renderMarkdownSafe(text: string): string | undefined {
   }
 }
 
-/** One quick-root chip in the header. */
-function RootChip(props: { icon?: JSX.Element; label: string; onClick: () => void; disabled?: boolean }): JSX.Element | null {
-  const { icon, label, onClick, disabled } = props
-  if (disabled) return null
-  return (
-    <button type="button" style={styles.rootChip} onClick={onClick} title={label}>
-      {icon && <span style={styles.rootChipIcon}>{icon}</span>}
-      {label}
-    </button>
-  )
-}
-
-/**
- * Quick-root chips for the workspace-root jump row: registered workspaces
- * (deduped against the current session workspace, capped for width) plus the
- * session workspace itself when it is not one of them. 「主目录」is rendered
- * separately before these.
- */
-function quickRootChips(
-  workspacesState: any,
-  sessionsState: any,
-  sessionId: string | undefined,
-  navigate: (path: string) => void,
-): JSX.Element[] {
-  const items: readonly WorkspaceRowLike[] = Array.isArray(workspacesState?.items) ? workspacesState.items : []
-  const sid: string | undefined = sessionId ?? sessionsState?.current
-  const sessionCwd: string | undefined = sid ? sessionsState?.byId?.[sid]?.cwd : undefined
-  const chips: JSX.Element[] = []
-  const covered = new Set<string>()
-  for (const item of items) {
-    if (!item.path) continue
-    covered.add(item.path)
-    if (chips.length >= 8) continue
-    chips.push(
-      <RootChip
-        key={String(item.workspaceId)}
-        icon={<Folder size={12} />}
-        label={item.title ?? '?'}
-        onClick={() => navigate(item.path as string)}
-      />,
-    )
-  }
-  if (sessionCwd && !covered.has(sessionCwd)) {
-    const title = (sid ? sessionsState?.byId?.[sid]?.displayTitle : undefined) ?? '当前会话'
-    chips.push(
-      <RootChip
-        key={`session-${sid ?? ''}`}
-        icon={<MessageSquare size={12} />}
-        label={String(title).slice(0, 30)}
-        onClick={() => navigate(sessionCwd)}
-      />,
-    )
-  }
-  return chips
-}
-
 /** Text preview with line numbers. */
 function TextView(props: { text: string; truncated: boolean }): JSX.Element {
   const lines = props.text.split(/\r?\n/)
@@ -647,10 +619,16 @@ function TextView(props: { text: string; truncated: boolean }): JSX.Element {
   return (
     <div style={styles.textWrap}>
       {props.truncated && (
-        <div style={styles.textTruncatedNote}><TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />文件较大，仅预览前 {TEXT_PREVIEW_BYTES / 1024} KB</div>
+        <div style={styles.textTruncatedNote}>
+          <TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />
+          {L('文件较大，仅预览前 {kb} KB', 'File too large — previewing the first {kb} KB', { kb: TEXT_PREVIEW_BYTES / 1024 })}
+        </div>
       )}
       {lines.length > MAX_TEXT_LINES && (
-        <div style={styles.textTruncatedNote}><TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />内容过长，仅显示前 {MAX_TEXT_LINES} 行</div>
+        <div style={styles.textTruncatedNote}>
+          <TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />
+          {L('内容过长，仅显示前 {n} 行', 'Too many lines — showing the first {n}', { n: MAX_TEXT_LINES })}
+        </div>
       )}
       <pre style={styles.textPre}>
         {shown.map((line, index) => (
@@ -669,7 +647,10 @@ function MarkdownPreview(props: { html: string; truncated: boolean }): JSX.Eleme
   return (
     <div style={styles.mdWrap}>
       {props.truncated && (
-        <div style={styles.textTruncatedNote}><TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />文件较大，仅渲染前 {TEXT_PREVIEW_BYTES / 1024} KB</div>
+        <div style={styles.textTruncatedNote}>
+          <TriangleAlert size={12} strokeWidth={2} style={styles.warnGlyph} />
+          {L('文件较大，仅渲染前 {kb} KB', 'File too large — rendering the first {kb} KB', { kb: TEXT_PREVIEW_BYTES / 1024 })}
+        </div>
       )}
       <style>{MD_CSS}</style>
       <div className="dfe-md" dangerouslySetInnerHTML={{ __html: props.html }} />
@@ -745,43 +726,6 @@ const styles: Record<string, CSSProperties> = {
   lineSpacer: {
     width: 6,
     flexShrink: 0,
-  },
-  // 单行、固定高度；overflow-y 必须显式 hidden（visible+auto 会被规范解析成
-  // 双轴 auto，导致滚动条把行撑高变形）。
-  roots: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-    flex: 1,
-    minWidth: 0,
-    height: 26,
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    scrollbarWidth: 'thin',
-  },
-  rootChip: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 5,
-    fontSize: 12,
-    lineHeight: '22px',
-    height: 22,
-    padding: '0 10px',
-    borderRadius: 11,
-    border: '1px solid rgba(28, 35, 51, 0.14)',
-    background: '#f7f8fa',
-    color: '#3c4659',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    maxWidth: 190,
-    flexShrink: 0,
-  },
-  rootChipIcon: {
-    display: 'inline-flex',
-    flexShrink: 0,
-    color: '#8a93a6',
   },
   jumpInput: {
     width: 170,

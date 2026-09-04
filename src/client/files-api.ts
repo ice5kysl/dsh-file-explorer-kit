@@ -9,6 +9,8 @@
  * @module dsh-file-explorer/files-api
  */
 
+import { L } from './locale.ts'
+
 export type EntryKind = 'dir' | 'file'
 
 export interface FsEntry {
@@ -66,7 +68,7 @@ async function getJson<T>(query: string): Promise<T> {
   try {
     response = await fetch(`/dsh-files/${query}`, { headers: { accept: 'application/json' } })
   } catch {
-    throw new ApiError({ code: 'network', message: '无法连接本机 dsh web 服务（/dsh-files 不可达）' })
+    throw new ApiError({ code: 'network', message: L('无法连接本机 dsh web 服务（/dsh-files 不可达）', 'Cannot reach the local dsh web service (/dsh-files)') })
   }
   let body: { ok?: boolean; error?: FsError } | null = null
   try {

@@ -10,13 +10,16 @@
 
 - **会话第三个 tab「文件」**（对话 | 轨迹 | 文件）：注册进官方 `conversation.view`
   视图环，排在 chat（order 0）与 trajectory（order 10）之后（order 20），tab 条自动出现；
+  标签文案跟随界面语言（文件 / Files）；
 - 以**当前会话的工作区目录**为根打开；目录面包屑 + 目录/文件列表（目录优先、
-  大小/时间、隐藏点文件开关）、快速跳转到其它工作区 / 主目录 / 任意绝对路径；
+  大小/时间、隐藏点文件开关）、**任意绝对路径跳转**；
 - 打开期间自动刷新（agent 在后台写文件也能看到）；**切走再切回按会话记忆上次目录**；
+- **中英双语界面**：按浏览器语言自动检测（zh → 中文，其它 → English），顶栏
+  「中 / EN」按钮随时切换并记住偏好；
 - 右侧预览：**Markdown 默认渲染**（`预览` / `Raw` 一键切换；渲染前经 marked 解析 +
-  DOMPurify 消毒，防仓库内恶意 md 的 XSS）、**图片内联显示**、其他**文本带行号**
-  （超长截断并提示）、PDF 内嵌、二进制文件提供「复制路径 / 在 Finder 中打开」
-  （走官方 `ctx.workspaces.openPath`）；
+  DOMPurify 消毒，防仓库内恶意 md 的 XSS，预览内链接一律新标签打开）、**图片内联显示**、
+  其他**文本带行号**（超长截断并提示）、PDF 内嵌、二进制文件提供「复制路径 /
+  在文件管理器中打开」（走官方 `ctx.workspaces.openPath`）；
 - 目录/文件数据全部走宿主侧 `/dsh-files` **只读**接口，插件不修改任何文件。
 
 ## 为什么需要宿主侧路由（设计说明，均依据官方文档/源码）
@@ -72,8 +75,8 @@ dsh --profile web --dump-config | grep -n "file-explorer"
 
 - 打开任意会话，标题栏出现 **对话 | 轨迹 | 文件** 三个 tab；点「文件」即在正文区
   浏览该会话工作区目录（目录行单击进入、文件行单击预览，↑↓/↵/⌫ 键盘可用）。
-- 顶部可跳到其它工作区 / 主目录，或直接输入绝对路径；预览面板可「复制路径 /
-  在 Finder 中打开」。
+- 顶栏一行：面包屑 + 「显示隐藏 / 刷新 / 中EN」+ 绝对路径跳转框；预览面板可
+  「复制路径 / 在文件管理器中打开」。
 - 切到别的会话再回来，「文件」tab 会记住该会话上次浏览的目录（仅内存，不跨刷新）。
 
 > 与 dsh-workspace-kit 兼容：本插件只占用 `conversation.view` 的加法槽位（tab），
@@ -102,7 +105,9 @@ src/host/    宿主侧：fs-server.ts（纯目录扫描/文本读取函数）、
 src/client/  浏览器侧：FilesView.tsx（conversation.view tab 的文件浏览器）、
              browse-memory.ts（按会话记忆上次目录）、files-api.ts（/dsh-files
              fetch 客户端 + 类型）、actions.ts（openPath 绑定）、
+             locale.ts（中/EN 检测与 L()）、icons.tsx（lucide SVG 行图标）、
              index.ts（apply：conversation.view 注册）
+src/shared/  i18n.ts（纯 localize/normalizeLocale，host/client 共用）
 cordis.patch.yml   bundle 层：插入唯一 Loader 入口 dsh-file-explorer
 ```
 

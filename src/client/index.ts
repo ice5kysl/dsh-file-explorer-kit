@@ -18,6 +18,7 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import { setOpenPathImpl } from './actions.ts'
+import { L } from './locale.ts'
 import { FilesView } from './FilesView.tsx'
 
 export const name = 'file-explorer'
@@ -59,7 +60,7 @@ export function apply(raw: Context): void {
         name: 'conversation.view',
         id: 'files',
         order: 20,
-        label: () => '文件',
+        label: () => L('文件', 'Files'),
       },
       FilesView,
     ),
