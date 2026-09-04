@@ -1,13 +1,14 @@
 {
   "name": "dsh-file-explorer",
   "version": "0.3.1",
-  "description": "dsh 工作区文件浏览器：作为会话第三个 tab（对话 | 轨迹 | 文件）直接在 GUI 里浏览工作区目录并预览文件（文本/图片/PDF/二进制），不必切到 Finder。官方 bundle 形态，宿主侧通过 ctx.webServer 注册只读 /dsh-files 路由，浏览器侧注册进 conversation.view 视图环。",
+  "description": "dsh (DeepSeek Harness) file explorer: browse the active session's workspace and preview files (Markdown/image/PDF/text/binary) right inside the chat GUI — a standard Cordis bundle plugin (read-only /dsh-files host routes on ctx.webServer + a conversation.view file tab).",
   "type": "module",
   "main": "lib/index.js",
   "files": [
     "lib",
     "cordis.patch.yml",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     ".": {
@@ -18,6 +19,18 @@
     },
     "./package.json": "./package.json"
   },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "file-explorer",
+    "file-browser"
+  ],
+  "author": "ice5kysl",
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -33,7 +46,9 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepare": "npm run build",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",

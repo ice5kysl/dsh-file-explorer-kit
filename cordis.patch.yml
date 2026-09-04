@@ -4,7 +4,7 @@
 # active sources resolving to one package name), so the single `file-explorer`
 # entry carries host apply (webServer 上的 /dsh-files 只读路由), and the same
 # enabled entry's `dsh.client` metadata makes the browser load the ./client
-# face (会话头「文件」按钮 + 侧栏脚入口 + shell.overlay 浏览面板).
+# face (会话内「文件」tab：注册进官方 conversation.view 视图环，排在对话/轨迹之后).
 - insert:
     - id: file-explorer
       name: dsh-file-explorer

@@ -47,9 +47,12 @@
 前置：`dsh` 在 PATH（`@deepseek-ai/dsh` ≥ 0.1.1-rc.2），Node 20+。
 
 ```bash
-# 在插件目录（独立仓库 = 仓库根；monorepo 布局则在 plugins/dsh-file-explorer 下）执行：
-# 1. 构建（产出 lib/index.js + lib/client.js）
-npm install --cache ./.npm-cache   # 仅安装构建期依赖（typescript/esbuild/@types/marked/dompurify）
+# 0. 获取源码（或直接使用本地目录）
+git clone https://github.com/ice5kysl/dsh-file-explorer && cd dsh-file-explorer
+#    monorepo 布局则在 plugins/dsh-file-explorer 目录下执行
+
+# 1. 构建（产出 lib/index.js + lib/client.js；npm install 的 prepare 钩子会自动构建）
+npm install                # 安装构建期依赖（typescript/esbuild/@types/marked/dompurify 等）
 npm run build
 
 # 2. 安装进你的 web profile（等价于官方 dsh plugin add 组合包）
@@ -80,7 +83,7 @@ dsh --profile web --dump-config | grep -n "file-explorer"
 ## 打包 / 分发（可选）
 
 ```bash
-npm pack          # 产出 dsh-file-explorer-0.3.1.tgz（含预构建 lib/）
+npm pack          # 产出 dsh-file-explorer-0.3.1.tgz（含预构建 lib/，prepack 自动 build）
 # 其他机器：dsh plugin --profile web add ./dsh-file-explorer-0.3.1.tgz
 ```
 
