@@ -1,0 +1,10 @@
+# dsh-file-explorer — bundle layer
+#
+# One Loader entry per package (the dsh client module system rejects multiple
+# active sources resolving to one package name), so the single `file-explorer`
+# entry carries host apply (webServer 上的 /dsh-files 只读路由), and the same
+# enabled entry's `dsh.client` metadata makes the browser load the ./client
+# face (会话头「文件」按钮 + 侧栏脚入口 + shell.overlay 浏览面板).
+- insert:
+    - id: file-explorer
+      name: dsh-file-explorer
