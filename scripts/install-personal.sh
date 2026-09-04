@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # 把 dsh-file-explorer 安装进本机个人 dsh 的 web profile（官方 dsh plugin add 路径）。
 # 前置：已在插件目录构建（npm run build），dsh 在 PATH。
-# 用法（monorepo 布局）：bash plugins/dsh-file-explorer/scripts/install-personal.sh
-# 用法（独立仓库布局）：bash scripts/install-personal.sh
+# 用法：clone 后在仓库根执行 bash scripts/install-personal.sh
 set -euo pipefail
 
 # 定位插件目录：从本脚本位置向上找到 name=dsh-file-explorer 的 package.json，
-# 因此脚本在 monorepo 或独立仓库里都能运行。
+# 因此仓库根直接运行即可；把整个插件目录复制进其它仓库（如 plugins/ 子目录）
+# 后同样能运行。
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_DIR=""
 DIR="$SCRIPT_DIR"

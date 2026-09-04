@@ -69,7 +69,7 @@ await check('list workspace root (dirs first, files have size)', async () => {
   const files = body.entries.filter((entry) => entry.kind === 'file' && entry.name === 'package.json')
   const dirs = body.entries.filter((entry) => entry.kind === 'dir' && entry.name === 'src')
   if (files.length === 0 || dirs.length === 0) throw new Error('expected src/ + package.json rows')
-  if (files[0].size <= 0 || !files[0].hidden === undefined) throw new Error('file row shape wrong')
+  if (files[0].size <= 0 || files[0].hidden === undefined) throw new Error('file row shape wrong')
   if (body.crumbs[body.crumbs.length - 1]?.path !== process.cwd()) throw new Error('crumb tail mismatch')
 })
 

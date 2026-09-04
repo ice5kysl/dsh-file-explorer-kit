@@ -49,14 +49,13 @@
 ```bash
 # 0. 获取源码（或直接使用本地目录）
 git clone https://github.com/ice5kysl/dsh-file-explorer && cd dsh-file-explorer
-#    monorepo 布局则在 plugins/dsh-file-explorer 目录下执行
 
 # 1. 构建（产出 lib/index.js + lib/client.js；npm install 的 prepare 钩子会自动构建）
-npm install                # 安装构建期依赖（typescript/esbuild/@types/marked/dompurify 等）
+npm install                # 安装构建期依赖（typescript/esbuild/@types/marked/dompurify/lucide-react 等）
 npm run build
 
 # 2. 安装进你的 web profile（等价于官方 dsh plugin add 组合包）
-bash scripts/install-personal.sh   # 脚本自定位插件目录，独立仓库 / plugins 布局均可
+bash scripts/install-personal.sh   # 脚本自动向上定位插件目录（仓库根直接运行即可）
 #    脚本实际执行：dsh plugin --profile web add <本插件目录>
 #    它会把这个包加入 ~/.dsh/profiles/web 的 dsh.profile.bundles（追加在
 #    dsh-web-app 之后），包内 cordis.patch.yml 自动插入唯一 Loader 行。

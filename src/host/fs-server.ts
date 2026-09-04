@@ -176,13 +176,21 @@ const BINARY_SNIFF = 4096
  */
 export async function readTextHead(path: string, maxBytes: number): Promise<TextHead> {
   if (!isAbsolute(path)) return { kind: 'missing', size: 0, truncated: false, error: fsError('invalid-path', `not an absolute path: ${path}`) }
+  // stat 先行：open 一个 FIFO/设备文件会一直阻塞到有写入方出现，可能挂住宿主
+  // 请求线程；这里只放行常规文件（目录在下面单独给 ENOTDIR）。
+  let info
+  try {
+    info = await stat(path)
+  } catch (error) {
+    return { kind: 'missing', size: 0, truncated: false, error: fsErrorFrom(error) }
+  }
+  if (info.isDirectory()) return { kind: 'missing', size: 0, truncated: false, error: fsError('ENOTDIR', 'path is a directory') }
+  if (!info.isFile()) return { kind: 'missing', size: 0, truncated: false, error: fsError('EIO', 'path is not a regular file') }
+  const want = Math.min(maxBytes, info.size)
+  const buffer = Buffer.alloc(want)
   let handle
   try {
     handle = await open(path, 'r')
-    const info = await handle.stat()
-    if (info.isDirectory()) return { kind: 'missing', size: 0, truncated: false, error: fsError('ENOTDIR', 'path is a directory') }
-    const want = Math.min(maxBytes, info.size)
-    const buffer = Buffer.alloc(want)
     let read = 0
     while (read < want) {
       const chunk = await handle.read(buffer, read, want - read, read)

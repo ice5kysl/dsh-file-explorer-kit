@@ -160,6 +160,14 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
     if (path !== undefined) browseMemorySet(memoryKey, path)
   }, [path, memoryKey])
 
+  // Mirror the selected file path for the listing effect, which must not
+  // depend on `selected` itself (or every selection change would refetch the
+  // directory). Lets the auto-refresh keep an open preview stable.
+  const selectedPathRef = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    selectedPathRef.current = selected?.path
+  }, [selected])
+
   // ── load the listing for the current path (manual + auto refresh) ────────
   useEffect(() => {
     if (!path) return
@@ -171,13 +179,23 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
         if (cancelled) return
         setListing(res)
         setLoadState('idle')
-        setSelected(undefined)
-        setCursor(0)
+        // 自动/手动刷新时保留仍在新列表里的选中文件（预览不被打断）；
+        // 只有目录已切换或文件已消失才回到空选中。
+        const keptPath = selectedPathRef.current
+        const keptIndex = keptPath ? res.entries.findIndex((entry) => entry.path === keptPath) : -1
+        if (keptPath && keptIndex >= 0) {
+          setCursor(keptIndex)
+        } else {
+          setSelected(undefined)
+          setCursor(0)
+        }
       })
       .catch((error: unknown) => {
         if (cancelled) return
         setLoadState('error')
         setLoadError(messageOf(error))
+        // 跳转目标目录不可用（已删除/无权限/输错路径）时，清掉上个目录的残留行
+        setListing((prev) => (prev && prev.path !== path ? undefined : prev))
       })
     return () => {
       cancelled = true
@@ -395,8 +413,7 @@ export function FilesView(props: FilesViewProps): JSX.Element | null {
             )}
           </div>
           <div style={styles.listInner}>
-            {visible.map((entry) => {
-              const index = visible.indexOf(entry)
+            {visible.map((entry, index) => {
               const isActive = index === cursor
               const isSelectedFile = selected?.path === entry.path && entry.kind === 'file'
               return (
@@ -545,7 +562,23 @@ function isMarkdown(ext: string): boolean {
 function renderMarkdownSafe(text: string): string | undefined {
   try {
     const html = marked.parse(text, { gfm: true, breaks: false }) as string
-    return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } })
+    // 点击预览里的链接绝不能把整个 dsh GUI 导航走：所有非页内锚点链接在新
+    // 标签打开并断开 window.opener。钩子在每次调用后移除，避免累积。
+    const externalizeLinks = (node: Element): void => {
+      if (node.tagName === 'A') {
+        const href = node.getAttribute('href') ?? ''
+        if (!href.startsWith('#')) {
+          node.setAttribute('target', '_blank')
+          node.setAttribute('rel', 'noopener noreferrer')
+        }
+      }
+    }
+    DOMPurify.addHook('afterSanitizeAttributes', externalizeLinks)
+    try {
+      return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } })
+    } finally {
+      DOMPurify.removeHook('afterSanitizeAttributes')
+    }
   } catch {
     return undefined
   }
