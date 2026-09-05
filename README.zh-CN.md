@@ -49,6 +49,14 @@
 
 ## 快速安装（本机个人 dsh）
 
+已发布到 npm —— 如果你已在本机跑 dsh Web，一行即可安装：
+
+```bash
+dsh plugin --profile web add dsh-file-explorer-kit
+```
+
+下面的 git 方式用于开发 / 尝鲜最新源码。
+
 前置：`dsh` 在 PATH（`@deepseek-ai/dsh` ≥ 0.1.1-rc.2），Node 20+。
 
 ```bash

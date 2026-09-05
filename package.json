@@ -1,6 +1,6 @@
 {
   "name": "dsh-file-explorer-kit",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "dsh (DeepSeek Harness) file explorer: browse the active session's workspace and preview files (Markdown/image/PDF/text/binary) right inside the chat GUI — a standard Cordis bundle plugin (read-only /dsh-files host routes on ctx.webServer + a conversation.view file tab).",
   "type": "module",
   "main": "lib/index.js",

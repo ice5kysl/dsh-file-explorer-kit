@@ -32,6 +32,14 @@ The official browser contract only offers **directory-level browsing** (`ctx.wor
 
 ## Quick install (personal dsh on this machine)
 
+Published on npm — if you already run dsh Web, install in one line:
+
+```bash
+dsh plugin --profile web add dsh-file-explorer-kit
+```
+
+The git route below is for development / running the latest source.
+
 Prerequisites: `dsh` on PATH (`@deepseek-ai/dsh` ≥ 0.1.1-rc.2), Node 20+.
 
 ```bash
