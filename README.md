@@ -1,4 +1,5 @@
 # dsh-file-explorer-kit
+[![dsh plugin health](https://ice5kysl.github.io/dsh-plugin-insights/badge/ice5kysl/dsh-file-explorer-kit.svg)](https://ice5kysl.github.io/dsh-plugin-insights/)
 
 > GitHub: <https://github.com/ice5kysl/dsh-file-explorer-kit> ｜ MIT License ｜ Target dsh: `@deepseek-ai/dsh` ≥ 0.1.1-rc.2 ｜ English · [简体中文](./README.zh-CN.md)
 
