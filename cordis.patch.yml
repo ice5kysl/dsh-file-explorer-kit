@@ -7,4 +7,4 @@
 # face (会话内「文件」tab：注册进官方 conversation.view 视图环，排在对话/轨迹之后).
 - insert:
     - id: file-explorer
-      name: dsh-file-explorer
+      name: dsh-file-explorer-kit

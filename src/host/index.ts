@@ -58,7 +58,7 @@ const PREFIX = '/dsh-files'
 export function apply(raw: unknown): void {
   const ctx = raw as HostCtxLike
   const log = ctx.logger('file-explorer')
-  log.info('dsh-file-explorer loaded (host /dsh-files routes)')
+  log.info('dsh-file-explorer-kit loaded (host /dsh-files routes)')
 
   ctx.effect(() => ctx.webServer.register({
     kind: 'prefix',
@@ -117,7 +117,7 @@ async function handleRequest(
     if (url.pathname === PREFIX || url.pathname === `${PREFIX}/`) {
       sendJson(res, 200, {
         ok: true,
-        plugin: 'dsh-file-explorer',
+        plugin: 'dsh-file-explorer-kit',
         endpoints: ['/dsh-files/home', '/dsh-files/list?path=', '/dsh-files/text?path=&maxBytes=', '/dsh-files/raw?path='],
       })
       return

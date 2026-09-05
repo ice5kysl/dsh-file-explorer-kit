@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# 把 dsh-file-explorer 安装进本机个人 dsh 的 web profile（官方 dsh plugin add 路径）。
+# 把 dsh-file-explorer-kit 安装进本机个人 dsh 的 web profile（官方 dsh plugin add 路径）。
 # 前置：已在插件目录构建（npm run build），dsh 在 PATH。
 # 用法：clone 后在仓库根执行 bash scripts/install-personal.sh
 set -euo pipefail
 
-# 定位插件目录：从本脚本位置向上找到 name=dsh-file-explorer 的 package.json，
+# 定位插件目录：从本脚本位置向上找到 name=dsh-file-explorer-kit 的 package.json，
 # 因此仓库根直接运行即可；把整个插件目录复制进其它仓库（如 plugins/ 子目录）
 # 后同样能运行。
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_DIR=""
 DIR="$SCRIPT_DIR"
 while [[ "$DIR" != "/" ]]; do
-  if [[ -f "$DIR/package.json" ]] && grep -q '"dsh-file-explorer"' "$DIR/package.json"; then
+  if [[ -f "$DIR/package.json" ]] && grep -q '"dsh-file-explorer-kit"' "$DIR/package.json"; then
     PLUGIN_DIR="$DIR"
     break
   fi
@@ -19,7 +19,7 @@ while [[ "$DIR" != "/" ]]; do
 done
 
 if [[ -z "$PLUGIN_DIR" ]]; then
-  echo "错误：找不到 dsh-file-explorer 的 package.json（从 $SCRIPT_DIR 向上查找失败）" >&2
+  echo "错误：找不到 dsh-file-explorer-kit 的 package.json（从 $SCRIPT_DIR 向上查找失败）" >&2
   exit 1
 fi
 
@@ -33,7 +33,7 @@ if ! command -v dsh >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "安装 dsh-file-explorer 到 web profile（$HOME/.dsh/profiles/web）"
+echo "安装 dsh-file-explorer-kit 到 web profile（$HOME/.dsh/profiles/web）"
 # dsh plugin --profile web add <path> 会把包作为组合包追加到 dsh.profile.bundles
 # 并链接到 profile；包内 cordis.patch.yml 随后插入 Loader 行。
 dsh plugin --profile web add "$PLUGIN_DIR"
