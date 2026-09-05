@@ -1,8 +1,8 @@
 > [English](./README.md) ｜ 简体中文
 
-# dsh-file-explorer
+# dsh-file-explorer-kit
 
-> GitHub：<https://github.com/ice5kysl/dsh-file-explorer> ｜ MIT License ｜ 目标 dsh：`@deepseek-ai/dsh` ≥ 0.1.1-rc.2
+> GitHub：<https://github.com/ice5kysl/dsh-file-explorer-kit> ｜ MIT License ｜ 目标 dsh：`@deepseek-ai/dsh` ≥ 0.1.1-rc.2
 
 按官方规范编写的 **dsh（DeepSeek Harness）插件**（bundle 形态），解决一个痛点：
 
@@ -53,7 +53,7 @@
 
 ```bash
 # 0. 获取源码（或直接使用本地目录）
-git clone https://github.com/ice5kysl/dsh-file-explorer && cd dsh-file-explorer
+git clone https://github.com/ice5kysl/dsh-file-explorer-kit && cd dsh-file-explorer-kit
 
 # 1. 构建（产出 lib/index.js + lib/client.js；npm install 的 prepare 钩子会自动构建）
 npm install                # 安装构建期依赖（typescript/esbuild/@types/marked/dompurify/lucide-react 等）

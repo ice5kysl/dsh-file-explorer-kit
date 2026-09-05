@@ -66,10 +66,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ice5kysl/dsh-file-explorer.git"
+    "url": "git+https://github.com/ice5kysl/dsh-file-explorer-kit.git"
   },
-  "homepage": "https://github.com/ice5kysl/dsh-file-explorer",
+  "homepage": "https://github.com/ice5kysl/dsh-file-explorer-kit",
   "bugs": {
-    "url": "https://github.com/ice5kysl/dsh-file-explorer/issues"
+    "url": "https://github.com/ice5kysl/dsh-file-explorer-kit/issues"
   }
 }

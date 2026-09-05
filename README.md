@@ -1,6 +1,6 @@
-# dsh-file-explorer
+# dsh-file-explorer-kit
 
-> GitHub: <https://github.com/ice5kysl/dsh-file-explorer> ｜ MIT License ｜ Target dsh: `@deepseek-ai/dsh` ≥ 0.1.1-rc.2 ｜ English · [简体中文](./README.zh-CN.md)
+> GitHub: <https://github.com/ice5kysl/dsh-file-explorer-kit> ｜ MIT License ｜ Target dsh: `@deepseek-ai/dsh` ≥ 0.1.1-rc.2 ｜ English · [简体中文](./README.zh-CN.md)
 
 A **dsh (DeepSeek Harness) plugin** written to official conventions, in "bundle" form. It solves one pain point:
 
@@ -36,7 +36,7 @@ Prerequisites: `dsh` on PATH (`@deepseek-ai/dsh` ≥ 0.1.1-rc.2), Node 20+.
 
 ```bash
 # 0. Get the source (or use a local directory directly)
-git clone https://github.com/ice5kysl/dsh-file-explorer && cd dsh-file-explorer
+git clone https://github.com/ice5kysl/dsh-file-explorer-kit && cd dsh-file-explorer-kit
 
 # 1. Build (produces lib/index.js + lib/client.js; npm install's prepare hook
 #    runs the build automatically)
