@@ -3,7 +3,7 @@
  * Boots a tiny node:http server that mimics the `ctx.webServer` route
  * contract and hands matching /dsh-files requests to the plugin's handler.
  *
- * Run: node scripts/smoke.mjs   (from the plugin directory)
+ * Run: npm test   (or: node tests/smoke.test.mjs, from the plugin directory)
  */
 
 import { createServer, request as httpRequest } from 'node:http'

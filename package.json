@@ -9,6 +9,7 @@
     "cordis.patch.yml",
     "README.md",
     "README.zh-CN.md",
+    "docs",
     "LICENSE"
   ],
   "exports": {
@@ -49,6 +50,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node tests/smoke.test.mjs",
     "prepare": "npm run build",
     "prepack": "npm run build"
   },

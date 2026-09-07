@@ -48,6 +48,8 @@
 - 路由在插件 `apply` 里经 `ctx.effect(() => ctx.webServer.register(...))` 注册，随插件
   fiber 卸载自动释放。
 
+> 更多细节——完整路由契约、错误形态与权限/安全边界：[docs/usage.zh-CN.md](./docs/usage.zh-CN.md)（English: [docs/usage.md](./docs/usage.md)）。
+
 ## 快速安装（本机个人 dsh）
 
 已发布到 npm —— 如果你已在本机跑 dsh Web，一行即可安装：
@@ -107,7 +109,7 @@ npm pack          # 产出 dsh-file-explorer-kit-0.3.1.tgz（含预构建 lib/�
 ```bash
 npm run typecheck   # tsc --noEmit（宿主 + 浏览器两侧源码）
 npm run build       # esbuild：src/host → lib/index.js；src/client → lib/client.js
-node scripts/smoke.mjs   # 宿主 /dsh-files 端点独立冒烟测试
+npm test            # 宿主 /dsh-files 端点独立冒烟测试
 ```
 
 源码布局：

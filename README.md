@@ -31,6 +31,8 @@ The official browser contract only offers **directory-level browsing** (`ctx.wor
 - Every request passes a host-trust gate that mirrors the official `/api` trust fence: a loopback Host passes straight through; a non-loopback one needs a same-origin Origin marker. **This is not an authentication layer** — consistent with the official web server (binds 127.0.0.1 by default; keep the loopback binding when deploying).
 - The routes are registered in the plugin's `apply` via `ctx.effect(() => ctx.webServer.register(...))` and are released automatically when the plugin's fiber unmounts.
 
+> More detail — full route contract, error shape, and the permission/security boundary: [docs/usage.md](./docs/usage.md)（中文：[docs/usage.zh-CN.md](./docs/usage.zh-CN.md)）.
+
 ## Quick install (personal dsh on this machine)
 
 Published on npm — if you already run dsh Web, install in one line:
@@ -88,7 +90,7 @@ npm pack          # produces dsh-file-explorer-kit-0.3.1.tgz (includes a prebuil
 ```bash
 npm run typecheck   # tsc --noEmit (host + browser sources)
 npm run build       # esbuild: src/host → lib/index.js; src/client → lib/client.js
-node scripts/smoke.mjs   # standalone smoke test of the host /dsh-files endpoints
+npm test            # standalone smoke test of the host /dsh-files endpoints
 ```
 
 Source layout:
