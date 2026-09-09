@@ -1,0 +1,45 @@
+name: Bug 报告
+description: 使用中遇到的异常行为
+title: "[bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么？
+      description: 现象描述，越具体越好（报错原文、截图、时间点）
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望的行为是什么？
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤（尽量最小化）
+      placeholder: 1. …\n2. …\n3. …
+    validations:
+      required: true
+  - type: input
+    id: dsh-version
+    attributes:
+      label: dsh 版本
+      description: 终端跑 `dsh --version` 或看设置页
+      placeholder: 如 0.1.2-rc.1
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: 插件版本
+      placeholder: 如 package.json 里的 version
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: 其他上下文（可选）
+      description: 操作系统、安装方式（npm/link）、其他已装插件——兼容问题尤其需要

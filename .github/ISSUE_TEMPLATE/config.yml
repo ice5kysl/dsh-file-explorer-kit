@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📖 使用文档与 FAQ
+    url: https://github.com/ice5kysl/dsh-file-explorer-kit
+    about: 安装、配置、常见问题的答案多半在 README/docs 里。
+  - name: 🌐 数据/评分口径问题（不是本插件本身的 bug）
+    url: https://github.com/ice5kysl/dsh-insights/issues/new/choose
+    about: dsh-insights.com 上的评分、实测兼容、榜单数据问题请到主仓库提。
