@@ -679,7 +679,7 @@ const MD_CSS = `
 .dfe-md li > ul, .dfe-md li > ol { margin: 0.2em 0; }
 .dfe-md blockquote { margin: 0.8em 0; padding: 2px 14px; border-left: 3px solid rgba(45,102,247,0.45); color: #5a6478; background: rgba(28,35,51,0.03); border-radius: 0 6px 6px 0; }
 .dfe-md code { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; background: rgba(28,35,51,0.07); padding: 1px 5px; border-radius: 5px; color: #b8336a; }
-.dfe-md pre { margin: 0.8em 0; background: #f5f7fa; border: 1px solid rgba(28,35,51,0.08); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
+.dfe-md pre { margin: 0.8em 0; background: var(--dsw-alias-bg-layer-1, #f5f7fa); border: 1px solid var(--dsw-alias-border-l1, rgba(28,35,51,0.08)); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
 .dfe-md pre code { background: transparent; padding: 0; color: #2b3446; font-size: 12.5px; line-height: 1.6; }
 .dfe-md table { border-collapse: collapse; margin: 0.8em 0; display: block; max-width: 100%; overflow-x: auto; }
 .dfe-md th, .dfe-md td { border: 1px solid rgba(28,35,51,0.14); padding: 5px 10px; font-size: 13px; }
@@ -702,8 +702,8 @@ const styles: Record<string, CSSProperties> = {
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
-    background: '#ffffff',
-    color: '#1c2333',
+    background: 'var(--dsw-alias-bg-layer-2, #ffffff)',
+    color: 'var(--dsw-alias-label-primary, #1c2333)',
     overflow: 'hidden',
   },
   header: {
@@ -734,10 +734,10 @@ const styles: Record<string, CSSProperties> = {
     padding: '0 9px',
     fontSize: 12,
     borderRadius: 7,
-    border: '1px solid rgba(28, 35, 51, 0.18)',
+    border: '1px solid var(--dsw-alias-border-l2, rgba(28, 35, 51, 0.18))',
     outline: 'none',
     color: 'inherit',
-    background: '#ffffff',
+    background: 'var(--dsw-alias-bg-layer-1, #ffffff)',
     flexShrink: 0,
   },
   toolButton: {
@@ -750,16 +750,16 @@ const styles: Record<string, CSSProperties> = {
     height: 22,
     padding: '0 9px',
     borderRadius: 7,
-    border: '1px solid rgba(28, 35, 51, 0.16)',
-    background: '#ffffff',
-    color: '#3c4659',
+    border: '1px solid var(--dsw-alias-border-l2, rgba(28, 35, 51, 0.16))',
+    background: 'var(--dsw-alias-bg-layer-1, #ffffff)',
+    color: 'var(--dsw-alias-label-primary, #3c4659)',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
   },
   toolButtonActive: {
     background: 'rgba(45, 102, 247, 0.10)',
     borderColor: 'rgba(45, 102, 247, 0.5)',
-    color: '#2d66f7',
+    color: 'var(--dsw-alias-brand-primary, #2d66f7)',
   },
   crumbs: {
     display: 'flex',
@@ -772,13 +772,13 @@ const styles: Record<string, CSSProperties> = {
     scrollbarWidth: 'thin',
     gap: 2,
     fontSize: 12,
-    color: '#8a93a6',
+    color: 'var(--dsw-alias-label-tertiary, #8a93a6)',
   },
   crumbPath: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    color: '#5a6478',
+    color: 'var(--dsw-alias-label-secondary, #5a6478)',
   },
   crumbWrap: {
     display: 'flex',
@@ -788,12 +788,12 @@ const styles: Record<string, CSSProperties> = {
   },
   crumbSep: {
     margin: '0 4px',
-    color: '#c0c6d2',
+    color: 'var(--dsw-alias-label-dimmed, #c0c6d2)',
   },
   crumb: {
     border: 'none',
     background: 'transparent',
-    color: '#5a6478',
+    color: 'var(--dsw-alias-label-secondary, #5a6478)',
     fontSize: 12,
     cursor: 'pointer',
     padding: '2px 2px',
@@ -819,11 +819,11 @@ const styles: Record<string, CSSProperties> = {
   listStatus: {
     padding: '6px 12px 0',
     fontSize: 11,
-    color: '#8a93a6',
+    color: 'var(--dsw-alias-label-tertiary, #8a93a6)',
   },
   statusText: {
     fontSize: 11,
-    color: '#8a93a6',
+    color: 'var(--dsw-alias-label-tertiary, #8a93a6)',
   },
   listInner: {
     flex: 1,
@@ -859,14 +859,14 @@ const styles: Record<string, CSSProperties> = {
   rowMeta: {
     flexShrink: 0,
     fontSize: 11,
-    color: '#8a93a6',
+    color: 'var(--dsw-alias-label-tertiary, #8a93a6)',
     minWidth: 48,
     textAlign: 'right',
   },
   rowMeta2: {
     flexShrink: 0,
     fontSize: 11,
-    color: '#b4bac6',
+    color: 'var(--dsw-alias-label-dimmed, #b4bac6)',
     minWidth: 96,
     textAlign: 'right',
   },
@@ -876,7 +876,7 @@ const styles: Record<string, CSSProperties> = {
     flexShrink: 0,
     border: 'none',
     background: 'transparent',
-    color: '#8a93a6',
+    color: 'var(--dsw-alias-label-tertiary, #8a93a6)',
     cursor: 'pointer',
     fontSize: 12,
     padding: '0 2px',
@@ -909,13 +909,13 @@ const styles: Record<string, CSSProperties> = {
   },
   previewMeta: {
     fontSize: 11,
-    color: '#8a93a6',
+    color: 'var(--dsw-alias-label-tertiary, #8a93a6)',
     whiteSpace: 'nowrap',
   },
   segmented: {
     display: 'inline-flex',
     borderRadius: 8,
-    border: '1px solid rgba(28, 35, 51, 0.16)',
+    border: '1px solid var(--dsw-alias-border-l2, rgba(28, 35, 51, 0.16))',
     overflow: 'hidden',
     flexShrink: 0,
   },
@@ -924,14 +924,14 @@ const styles: Record<string, CSSProperties> = {
     lineHeight: '22px',
     padding: '0 10px',
     border: 'none',
-    background: '#ffffff',
-    color: '#5a6478',
+    background: 'var(--dsw-alias-bg-layer-1, #ffffff)',
+    color: 'var(--dsw-alias-label-secondary, #5a6478)',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
   },
   segButtonActive: {
     background: 'rgba(45, 102, 247, 0.10)',
-    color: '#2d66f7',
+    color: 'var(--dsw-alias-brand-primary, #2d66f7)',
     fontWeight: 600,
   },
   mdWrap: {
@@ -946,15 +946,15 @@ const styles: Record<string, CSSProperties> = {
     fontSize: 12,
     padding: '2px 10px',
     borderRadius: 8,
-    border: '1px solid rgba(28, 35, 51, 0.16)',
-    background: '#ffffff',
-    color: '#3c4659',
+    border: '1px solid var(--dsw-alias-border-l2, rgba(28, 35, 51, 0.16))',
+    background: 'var(--dsw-alias-bg-layer-1, #ffffff)',
+    color: 'var(--dsw-alias-label-primary, #3c4659)',
     cursor: 'pointer',
   },
   actionNote: {
     padding: '4px 14px',
     fontSize: 11,
-    color: '#2d66f7',
+    color: 'var(--dsw-alias-brand-primary, #2d66f7)',
     borderBottom: '1px solid rgba(28, 35, 51, 0.06)',
   },
   previewBody: {
@@ -963,12 +963,12 @@ const styles: Record<string, CSSProperties> = {
     overflow: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    background: '#fbfcfe',
+    background: 'var(--dsw-alias-bg-layer-1, #fbfcfe)',
   },
   previewEmpty: {
     margin: 'auto',
     textAlign: 'center',
-    color: '#7a8499',
+    color: 'var(--dsw-alias-label-tertiary, #7a8499)',
     fontSize: 13,
     padding: 24,
     lineHeight: 1.9,
@@ -976,12 +976,12 @@ const styles: Record<string, CSSProperties> = {
   previewEmptyIcon: {
     display: 'flex',
     justifyContent: 'center',
-    color: '#c3c9d6',
+    color: 'var(--dsw-alias-label-dimmed, #c3c9d6)',
     marginBottom: 6,
   },
   previewEmptyHint: {
     fontSize: 12,
-    color: '#a2aab8',
+    color: 'var(--dsw-alias-label-tertiary, #a2aab8)',
     maxWidth: 360,
   },
   image: {
@@ -1008,8 +1008,8 @@ const styles: Record<string, CSSProperties> = {
     top: 0,
     zIndex: 1,
     fontSize: 11,
-    color: '#8a6d1a',
-    background: '#fff7e0',
+    color: '#8a5a00',
+    background: 'rgba(217, 119, 6, 0.12)',
     borderBottom: '1px solid #f0e2b6',
     padding: '4px 12px',
   },
@@ -1029,12 +1029,12 @@ const styles: Record<string, CSSProperties> = {
     minWidth: 52,
     textAlign: 'right',
     paddingRight: 12,
-    color: '#b4bac6',
+    color: 'var(--dsw-alias-label-dimmed, #b4bac6)',
     userSelect: 'none',
     flexShrink: 0,
   },
   textLineBody: {
-    color: '#2b3446',
+    color: 'var(--dsw-alias-label-primary, #2b3446)',
     whiteSpace: 'pre',
   },
 }
