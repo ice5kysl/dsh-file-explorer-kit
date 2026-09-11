@@ -682,8 +682,8 @@ const MD_CSS = `
 .dfe-md pre { margin: 0.8em 0; background: var(--dsw-alias-bg-layer-1, #f5f7fa); border: 1px solid var(--dsw-alias-border-l1, rgba(28,35,51,0.08)); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
 .dfe-md pre code { background: transparent; padding: 0; color: #2b3446; font-size: 12.5px; line-height: 1.6; }
 .dfe-md table { border-collapse: collapse; margin: 0.8em 0; display: block; max-width: 100%; overflow-x: auto; }
-.dfe-md th, .dfe-md td { border: 1px solid rgba(28,35,51,0.14); padding: 5px 10px; font-size: 13px; }
-.dfe-md th { background: #f2f4f8; font-weight: 600; }
+.dfe-md th, .dfe-md td { border: 1px solid var(--dsw-alias-border-l1, rgba(28,35,51,0.14)); padding: 5px 10px; font-size: 13px; }
+.dfe-md th { background: var(--dsw-alias-bg-layer-1, #f2f4f8); font-weight: 600; }
 .dfe-md hr { border: none; border-top: 1px solid rgba(28,35,51,0.12); margin: 1.2em 0; }
 .dfe-md img { max-width: 100%; border-radius: 8px; }
 .dfe-md .dfe-md-tasklist { list-style: none; padding-left: 0.4em; }
