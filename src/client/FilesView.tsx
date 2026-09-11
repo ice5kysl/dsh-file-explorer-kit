@@ -866,7 +866,7 @@ const styles: Record<string, CSSProperties> = {
   rowMeta2: {
     flexShrink: 0,
     fontSize: 11,
-    color: 'var(--dsw-alias-label-dimmed, #b4bac6)',
+    color: 'var(--dsw-alias-label-tertiary, #8a93a6)',
     minWidth: 96,
     textAlign: 'right',
   },
@@ -1029,7 +1029,7 @@ const styles: Record<string, CSSProperties> = {
     minWidth: 52,
     textAlign: 'right',
     paddingRight: 12,
-    color: 'var(--dsw-alias-label-dimmed, #b4bac6)',
+    color: 'var(--dsw-alias-label-tertiary, #8a93a6)',
     userSelect: 'none',
     flexShrink: 0,
   },
