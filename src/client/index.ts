@@ -18,8 +18,8 @@
 
 import type { Context } from '@deepseek-ai/cordis'
 import { setOpenPathImpl } from './actions.ts'
+import { FilesView, ensureExplorerStyles } from './FilesView.tsx'
 import { L } from './locale.ts'
-import { FilesView } from './FilesView.tsx'
 
 export const name = 'file-explorer'
 export const inject = ['slots', 'workspaces'] as const
@@ -47,6 +47,11 @@ export function apply(raw: Context): void {
   const ctx = raw as unknown as ClientCtxLike
   const log = ctx.logger('file-explorer:client')
 
+  // One package-owned <head> tag before any surface can render — NOT a
+  // React-rendered <style> (the loader would claim it for a stranger and then
+  // delete it on that plugin's reload; see ensureExplorerStyles).
+  ensureExplorerStyles()
+
   // The view's "在 Finder 中打开" action rides the official openPath
   // capability; slot components get no ctx, so stash the bound action here.
   setOpenPathImpl((path) => ctx.workspaces.openPath(path))
@@ -68,3 +73,5 @@ export function apply(raw: Context): void {
 
   log.info('File explorer registered as session view tab (对话 | 轨迹 | 文件)')
 }
+
+export { FilesView, ensureExplorerStyles, CLIENT_PLUGIN_ID, CSS_TAG_ID, MD_CSS } from './FilesView.tsx'

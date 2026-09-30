@@ -644,6 +644,15 @@ function TextView(props: { text: string; truncated: boolean }): JSX.Element {
 
 /** Rendered markdown preview (already sanitized HTML) with scoped typography. */
 function MarkdownPreview(props: { html: string; truncated: boolean }): JSX.Element {
+  // The markdown stylesheet lives in <head>, owned by this package — never in
+  // the React tree: dsh's client module loader claims every untagged <style> in
+  // the document for whichever plugin materializes next and deletes it on that
+  // plugin's unload/hot-reload, which strips the whole sheet behind React's
+  // back (React never re-adds a node its fiber still believes in). See
+  // ensureExplorerStyles.
+  useEffect(() => {
+    ensureExplorerStyles()
+  }, [])
   return (
     <div style={styles.mdWrap}>
       {props.truncated && (
@@ -652,7 +661,6 @@ function MarkdownPreview(props: { html: string; truncated: boolean }): JSX.Eleme
           {L('文件较大，仅渲染前 {kb} KB', 'File too large — rendering the first {kb} KB', { kb: TEXT_PREVIEW_BYTES / 1024 })}
         </div>
       )}
-      <style>{MD_CSS}</style>
       <div className="dfe-md" dangerouslySetInnerHTML={{ __html: props.html }} />
     </div>
   )
@@ -662,7 +670,7 @@ function MarkdownPreview(props: { html: string; truncated: boolean }): JSX.Eleme
  * Scoped typography for rendered markdown (`.dfe-md ...`). Colors match the
  * plugin's light inline palette; the container scrolls inside the preview pane.
  */
-const MD_CSS = `
+export const MD_CSS = `
 .dfe-md { padding: 14px 18px 24px; font-size: 14px; line-height: 1.7; color: var(--dsw-alias-label-primary, #2b3446); overflow-wrap: break-word; }
 .dfe-md > :first-child { margin-top: 0; }
 .dfe-md > :last-child { margin-bottom: 0; }
@@ -688,6 +696,50 @@ const MD_CSS = `
 .dfe-md img { max-width: 100%; border-radius: 8px; }
 .dfe-md .dfe-md-tasklist { list-style: none; padding-left: 0.4em; }
 `
+
+/** This package's client-module id — the identity dsh's client module loader
+ *  stamps on style tags (`data-plugin`) and removes on unload. Must equal the
+ *  bundle envelope id (scripts/build.mjs writes it from package.json's name). */
+export const CLIENT_PLUGIN_ID = 'dsh-file-explorer-kit'
+
+/** The stylesheet tag's fingerprint: loader inventory key + our dedupe key. */
+export const CSS_TAG_ID = `${CLIENT_PLUGIN_ID}/markdown.css`
+
+/** Minimal DOM face {@link ensureExplorerStyles} needs (real Document, or a
+ *  test stub — deliberately drivable in tests). */
+export interface StylesDocument {
+  head: { appendChild(node: unknown): unknown }
+  createElement(tag: string): { textContent: string; setAttribute(name: string, value: string): void }
+  querySelector(selector: string): unknown
+}
+
+/**
+ * Inject {@link MD_CSS} into `document.head` once, TAGGED as our own.
+ *
+ * 1. **Never let React own the tag.** dsh's client module loader claims every
+ *    untagged `<style>` in the document for whichever plugin module
+ *    materializes next (`style:not([data-plugin])` → `data-plugin = id`) and
+ *    deletes `style[data-plugin=<pkg>]` when that package unloads or hot
+ *    reloads. A React-rendered tag has no `data-plugin`, so a stranger claims
+ *    it and later deletes it — the whole sheet disappears with no error. Our
+ *    tag is therefore born with `data-plugin` + `data-plugin-css`, the shipped
+ *    dsh packages' convention.
+ * 2. **Idempotent + self-healing.** Keyed by `data-plugin-css`, so a second
+ *    call is a no-op and a lost tag comes back on the next mount.
+ *
+ * @param doc - document to inject into; defaults to the browser document and
+ *   is a no-op when there is none (SSR / plain Node).
+ */
+export function ensureExplorerStyles(doc?: StylesDocument | null): void {
+  const target = doc !== undefined ? doc : typeof document === 'undefined' ? null : (document as unknown as StylesDocument)
+  if (!target) return
+  if (target.querySelector(`style[data-plugin-css=${JSON.stringify(CSS_TAG_ID)}]`)) return
+  const tag = target.createElement('style')
+  tag.setAttribute('data-plugin', CLIENT_PLUGIN_ID)
+  tag.setAttribute('data-plugin-css', CSS_TAG_ID)
+  tag.textContent = MD_CSS
+  target.head.appendChild(tag)
+}
 
 function messageOf(error: unknown): string {
   if (error instanceof ApiError) return error.message
